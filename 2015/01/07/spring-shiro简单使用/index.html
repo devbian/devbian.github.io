@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>spring shiro简单使用 | 小肥侠</title>
+  <meta name="author" content="phnix">
+  
+  <meta name="description" content="想使用shiro做权限控制,只是网络上好多的shiro资料让人好心塞,过于复杂,让刚接触shiro的人很不容易明白.而对于学习,最好的情况就是在了解一点理论后,就开始demo的编写,从一个个小demo中学习.">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="spring shiro简单使用"/>
+  <meta property="og:site_name" content="小肥侠"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="小肥侠" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">小肥侠</a></h1>
+  <h2><a href="/"></a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">存档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-01-07T07:30:08.000Z"><a href="/2015/01/07/spring-shiro简单使用/">2015 1月 7</a></time>
+      
+      
+  
+    <h1 class="title">spring shiro简单使用</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>想使用shiro做权限控制,只是网络上好多的shiro资料让人好心塞,过于复杂,让刚接触shiro的人很不容易明白.<br>而对于学习,最好的情况就是在了解一点理论后,就开始demo的编写,从一个个小demo中学习.<br><a id="more"></a><br>对于shiro理论知识,infoq的<a href="http://www.infoq.com/cn/articles/apache-shiro" target="_blank" rel="external">这篇文章</a>. 一定要耐心一点看完. 主要就是知道Subject, SecurityManager,以及Realm这三个概念.<br>知道了这些以后,就可以实例的编写了.<br>别的高大上的东西,在demo运行后,你会自然而然的想去了解.</p>
+<p>这里的例子就是用shiro做一个url路径的权限控制.<br>这里有/home /login /register /user三个地址.<br>要求前三个地址可以直接访问,而/user必须是登录后的用户才可以访问,否则跳转到登录页面.</p>
+<p>对于java web项目,最首先的都是配置文件,这里也不例外<br>web.xml</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="title">context-param</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="title">param-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">param-value</span>&gt;</span></div><div class="line">            classpath*:/applicationContext-shiro.xml</div><div class="line">        <span class="tag">&lt;/<span class="title">param-value</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">context-param</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!--这里一定要加,否则shiro无法加载,因为shiro1.2版本以后,是通过listener加载--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">listener</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">listener-class</span>&gt;</span>org.springframework.web.context.ContextLoaderListener<span class="tag">&lt;/<span class="title">listener-class</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">listener</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!--访问控制就是通过shirofilter来实现,由于这里是和spring结合,这里使用了DelegatingFilterProxy--&gt;</span></div><div class="line">    <span class="comment">&lt;!--这个类只做一个中转,需要在spring的配置中有一个与filter名相同的bean--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">filter</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">filter-name</span>&gt;</span>shiroFilter<span class="tag">&lt;/<span class="title">filter-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">filter-class</span>&gt;</span>org.springframework.web.filter.DelegatingFilterProxy<span class="tag">&lt;/<span class="title">filter-class</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">init-param</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="title">param-name</span>&gt;</span>targetFilterLifecycle<span class="tag">&lt;/<span class="title">param-name</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="title">param-value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">param-value</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="title">init-param</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">filter</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">filter-mapping</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">filter-name</span>&gt;</span>shiroFilter<span class="tag">&lt;/<span class="title">filter-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="title">url-pattern</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">filter-mapping</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!--spring mvc主控制入口,不多说--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">servlet</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">servlet-name</span>&gt;</span>springServlet<span class="tag">&lt;/<span class="title">servlet-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="title">servlet-class</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">init-param</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="title">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="title">param-name</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="title">param-value</span>&gt;</span>/WEB-INF/spring-mvc.xml<span class="tag">&lt;/<span class="title">param-value</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="title">init-param</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">load-on-startup</span>&gt;</span>1<span class="tag">&lt;/<span class="title">load-on-startup</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">servlet</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="title">servlet-mapping</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">servlet-name</span>&gt;</span>springServlet<span class="tag">&lt;/<span class="title">servlet-name</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="title">url-pattern</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">servlet-mapping</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="title">session-config</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="title">session-timeout</span>&gt;</span>20<span class="tag">&lt;/<span class="title">session-timeout</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="title">session-config</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<p>spring-mvc.xml中没什么内容,就是bean扫描.<br>重点在于shiro的配置.<br>applicationContext-shiro.xml 要配置shiroFilter bean,还有securityManager</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="title">bean</span> <span class="attribute">id</span>=<span class="value">"securityManager"</span> <span class="attribute">class</span>=<span class="value">"org.apache.shiro.web.mgt.DefaultWebSecurityManager"</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">property</span> <span class="attribute">name</span>=<span class="value">"realm"</span> <span class="attribute">ref</span>=<span class="value">"shiroDbRealm"</span> /&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="title">bean</span>&gt;</span></div><div class="line"></div><div class="line">	<span class="tag">&lt;<span class="title">bean</span> <span class="attribute">id</span>=<span class="value">"shiroDbRealm"</span> <span class="attribute">class</span>=<span class="value">"com.devbian.service.ShiroDbRealm"</span>&gt;</span><span class="tag">&lt;/<span class="title">bean</span>&gt;</span></div><div class="line">	<span class="comment">&lt;!-- Shiro Filter --&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="title">bean</span> <span class="attribute">id</span>=<span class="value">"shiroFilter"</span> <span class="attribute">class</span>=<span class="value">"org.apache.shiro.spring.web.ShiroFilterFactoryBean"</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">property</span> <span class="attribute">name</span>=<span class="value">"securityManager"</span> <span class="attribute">ref</span>=<span class="value">"securityManager"</span> /&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">property</span> <span class="attribute">name</span>=<span class="value">"loginUrl"</span> <span class="attribute">value</span>=<span class="value">"/login"</span> /&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">property</span> <span class="attribute">name</span>=<span class="value">"successUrl"</span> <span class="attribute">value</span>=<span class="value">"/login/success"</span> /&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="title">property</span> <span class="attribute">name</span>=<span class="value">"filterChainDefinitions"</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="title">value</span>&gt;</span></div><div class="line">				/login = authc</div><div class="line">				/register/** = anon</div><div class="line">				/user/** = user</div><div class="line">			<span class="tag">&lt;/<span class="title">value</span>&gt;</span></div><div class="line">		<span class="tag">&lt;/<span class="title">property</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="title">bean</span>&gt;</span></div><div class="line">	<span class="comment">&lt;!-- 保证实现了Shiro内部lifecycle函数的bean执行 --&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="title">bean</span> <span class="attribute">id</span>=<span class="value">"lifecycleBeanPostProcessor"</span> <span class="attribute">class</span>=<span class="value">"org.apache.shiro.spring.LifecycleBeanPostProcessor"</span>/&gt;</span></div></pre></td></tr></table></figure>
+
+<p>`</p>
+<p>HomeController.java</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">@<span class="type">Controller</span></div><div class="line">public class <span class="type">HomeController</span> {</div><div class="line"></div><div class="line">    @<span class="type">RequestMapping</span>(value = {<span class="string">"/"</span>, <span class="string">"/home"</span>}, <span class="keyword">method</span> = <span class="type">RequestMethod</span>.<span class="type">GET</span>)</div><div class="line">    public <span class="type">String</span> home() {</div><div class="line">        <span class="keyword">return</span> <span class="string">"home"</span>;</div><div class="line">    }</div><div class="line"></div><div class="line">    @<span class="type">RequestMapping</span>(value = <span class="string">"/register"</span>, <span class="keyword">method</span> = <span class="type">RequestMethod</span>.<span class="type">GET</span>)</div><div class="line">    public <span class="type">String</span> register() {</div><div class="line">        <span class="keyword">return</span> <span class="string">"register"</span>;</div><div class="line">    }</div><div class="line"></div><div class="line">    @<span class="type">RequestMapping</span>(value = <span class="string">"/user"</span>, <span class="keyword">method</span> = <span class="type">RequestMethod</span>.<span class="type">GET</span>)</div><div class="line">    public <span class="type">String</span> user(){</div><div class="line">        <span class="keyword">return</span> <span class="string">"user"</span>;</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>这里就是一些基本的url映射</p>
+<p>LoginController.java</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">@<span class="type">Controller</span></div><div class="line">@<span class="type">RequestMapping</span>(value = <span class="string">"/login"</span>)</div><div class="line">public class <span class="type">LoginController</span> {</div><div class="line"></div><div class="line">	@<span class="type">RequestMapping</span>(<span class="keyword">method</span> = <span class="type">RequestMethod</span>.<span class="type">GET</span>)</div><div class="line">	public <span class="type">String</span> login() {</div><div class="line">		<span class="keyword">return</span> <span class="string">"login"</span>;</div><div class="line">	}</div><div class="line"></div><div class="line">	@<span class="type">RequestMapping</span>(<span class="keyword">method</span> = <span class="type">RequestMethod</span>.<span class="type">POST</span>)</div><div class="line">	public <span class="type">String</span> fail(@<span class="type">RequestParam</span>(<span class="type">FormAuthenticationFilter</span>.<span class="type">DEFAULT_USERNAME_PARAM</span>) <span class="type">String</span> userName, <span class="type">Model</span> model) {</div><div class="line">		model.addAttribute(<span class="type">FormAuthenticationFilter</span>.<span class="type">DEFAULT_USERNAME_PARAM</span>, userName);</div><div class="line">		<span class="keyword">return</span> <span class="string">"loginFailed"</span>;</div><div class="line">	}</div><div class="line"></div><div class="line">	@<span class="type">RequestMapping</span>(value = <span class="string">"success"</span>)</div><div class="line">	public <span class="type">String</span> success(){</div><div class="line">		<span class="keyword">return</span> <span class="string">"loginSuccess"</span>;</div><div class="line">	}</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>这里不处理login的post请求,转交给shiro处理…</p>
+<p>每一个shiro项目,至少拥有一个Realm类.<br>Realm就是用于认证与授权<br>由于我们这个例子只是简单的url访问控制,所以,只要认证功能就行了,所以,只要复写doGetAuthenticationInfo方法就可以了.</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShiroDbRealm</span> <span class="keyword">extends</span> <span class="title">AuthorizingRealm</span> </span>{</div><div class="line"></div><div class="line">    <span class="annotation">@Override</span></div><div class="line">    <span class="keyword">protected</span> AuthenticationInfo <span class="title">doGetAuthenticationInfo</span>(AuthenticationToken authcToken) <span class="keyword">throws</span> AuthenticationException {</div><div class="line">        System.out.println(<span class="string">"doGetAuthenticationInfo......cccccc"</span>);</div><div class="line">        UsernamePasswordToken token = (UsernamePasswordToken) authcToken;</div><div class="line">        String userName = token.getUsername();</div><div class="line">        <span class="keyword">char</span>[] password = token.getPassword();</div><div class="line">        System.out.println(userName);</div><div class="line">        System.out.println(password);</div><div class="line">        System.out.println(<span class="string">"realName:"</span>+getName());</div><div class="line">        SimpleUser user = <span class="keyword">new</span> SimpleUser(<span class="string">"abc"</span>, <span class="string">"123"</span>);</div><div class="line">        <span class="keyword">if</span> (user != <span class="keyword">null</span>) {</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> SimpleAuthenticationInfo(user.getName(), user.getPassword(), getName());</div><div class="line">        } <span class="keyword">else</span> {</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        }</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="annotation">@Override</span></div><div class="line">    <span class="keyword">protected</span> AuthorizationInfo <span class="title">doGetAuthorizationInfo</span>(PrincipalCollection principals) {</div><div class="line">        System.out.printf(<span class="string">"doGetAuthorizationInfo.............zzzzzz"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>为了保持项目的简单,没有使用数据库,只是使用假数据模拟.<br><code>SimpleUser user = new SimpleUser(&quot;abc&quot;, &quot;123&quot;);</code><br>当用户使用”abc”,”123” 登录时,就可以直接登入<br>doGetAuthenticationInfo 方法的最后是返回一个SimpleAuthenticationInfo.</p>
+<p>以上代码,主要参考springside.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/shiro/">shiro</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/hello/">hello</a>
+  </div>
+
+     
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+ <nav id="pagination" >
+    
+    <a href="/2015/01/14/ubuntu-14-04远程桌面白屏/" class="alignleft prev" >上一页</a>
+    
+    
+    <a href="/2014/12/09/第一篇/" class="alignright next" >下一页</a>
+    
+    <div class="clearfix"></div>
+</nav>
+<section id="comment">
+<!-- 多说评论框 start -->
+  <div class="ds-thread" data-thread-key="请将此处替换成文章在你的站点中的ID" data-title="请替换成文章的标题" data-url="请替换成文章的网址"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"phnix"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- 多说公共JS代码 end -->
+</section>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:phnix.tk">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/blog/">blog</a><small>1</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>1</small></li>
+  
+    <li><a href="/categories/shiro/">shiro</a><small>1</small></li>
+  
+    <li><a href="/categories/spring/">spring</a><small>1</small></li>
+  
+    <li><a href="/categories/srping/">srping</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/aaa/" style="font-size: 10.00px;">aaa</a><a href="/tags/hello/" style="font-size: 20.00px;">hello</a><a href="/tags/linux/" style="font-size: 20.00px;">linux</a><a href="/tags/spring/" style="font-size: 20.00px;">spring</a><a href="/tags/spring-java/" style="font-size: 20.00px;">spring, java</a>
+  </div>
+</div>
+
+
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=1&isFans=0&uid=1746318775&verifier=42136668&dpc=1"></iframe>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 phnix
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="http://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+</body>
+</html>

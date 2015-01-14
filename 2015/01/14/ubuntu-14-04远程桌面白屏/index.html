@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   
-  <title>about | 小肥侠</title>
+  <title>ubuntu 14.04远程桌面白屏 | 小肥侠</title>
   <meta name="author" content="phnix">
   
-  <meta name="description" content="none">
+  <meta name="description" content="ubuntu 14.04安装完远程桌面xrdp后,通过远程登录后会出现只有黑白点为背景,无图标也无法操作的情况.这是因为unity桌面默认是开启的3d,而对于大部门远程桌面终端来说,是不支持这种情况的, 这时就要寻找一个默认是开启2d的桌面,xfce刚好满足这种情况.">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="about"/>
+  <meta property="og:title" content="ubuntu 14.04远程桌面白屏"/>
   <meta property="og:site_name" content="小肥侠"/>
 
   
@@ -47,27 +47,45 @@
 <div class="clearfix"></div>
 </header>
   <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper"><article class="page">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
   
   <div class="post-content">
     <header>
       
+        <div class="icon"></div>
+        <time datetime="2015-01-14T01:48:46.000Z"><a href="/2015/01/14/ubuntu-14-04远程桌面白屏/">2015 1月 14</a></time>
+      
       
   
-    <h1 class="title">about</h1>
+    <h1 class="title">ubuntu 14.04远程桌面白屏</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>none</p>
+        <p>ubuntu 14.04安装完远程桌面xrdp后,通过远程登录后会出现只有黑白点为背景,无图标也无法操作的情况.<br>这是因为unity桌面默认是开启的3d,而对于大部门远程桌面终端来说,是不支持这种情况的, 这时就要寻找一个默认是开启2d的桌面,xfce刚好满足这种情况.</p>
+<a id="more"></a>
+
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">sudo</span> apt-get install xfce4</div><div class="line"><span class="built_in">sudo</span> apt-get install xrdp vnc4server</div><div class="line"></div><div class="line"><span class="comment"># 新建一个.xession文件,使远程访问时,默认使用xfce4</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"xfce4-session"</span> &gt;~/.xsession</div><div class="line"></div><div class="line"><span class="built_in">sudo</span> service xrdp restart</div></pre></td></tr></table></figure>
+
+<p>这时再通过远程桌面访问,就正常了.<br>这里还有个问题,就是远程正常后,当打开终端,会出现全黑,什么也看不到,这是因为文字与背景设置成相同的颜色了,只要在profile里设置一个color就ok了.</p>
 
       
     </div>
     <footer>
       
         
+  
+  <div class="categories">
+    <a href="/categories/linux/">linux</a>
+  </div>
+
         
+  
+  <div class="tags">
+    <a href="/tags/linux/">linux</a>
+  </div>
+
      
       <div class="clearfix"></div>
     </footer>
@@ -77,6 +95,8 @@
 
  <nav id="pagination" >
     
+    
+    <a href="/2015/01/07/spring-shiro简单使用/" class="alignright next" >下一页</a>
     
     <div class="clearfix"></div>
 </nav>

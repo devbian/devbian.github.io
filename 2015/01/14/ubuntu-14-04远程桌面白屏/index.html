@@ -69,6 +69,7 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">sudo</span> apt-get install xfce4</div><div class="line"><span class="built_in">sudo</span> apt-get install xrdp vnc4server</div><div class="line"></div><div class="line"><span class="comment"># 新建一个.xession文件,使远程访问时,默认使用xfce4</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"xfce4-session"</span> &gt;~/.xsession</div><div class="line"></div><div class="line"><span class="built_in">sudo</span> service xrdp restart</div></pre></td></tr></table></figure>
 
 <p>这时再通过远程桌面访问,就正常了.<br>这里还有个问题,就是远程正常后,当打开终端,会出现全黑,什么也看不到,这是因为文字与背景设置成相同的颜色了,只要在profile里设置一个color就ok了.</p>
+<p>参考链接:<br><a href="http://forum.ubuntu.org.cn/viewtopic.php?p=3082205" target="_blank" rel="external">http://forum.ubuntu.org.cn/viewtopic.php?p=3082205</a><br><a href="http://www.linuxidc.com/Linux/2014-04/100491.htm" target="_blank" rel="external">http://www.linuxidc.com/Linux/2014-04/100491.htm</a></p>
 
       
     </div>
